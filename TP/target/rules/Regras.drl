@@ -1,0 +1,232 @@
+//created on: 22/jul/2020
+package Regras
+
+//list any import classes here.
+import com.sample.Paciente;
+import com.sample.Sangue;
+import com.sample.UI;
+import com.sample.AddPaciente;
+global javax.swing.JTextArea Aceites
+global javax.swing.JTextArea Rejeitados
+
+
+//declare any global variables here
+
+
+//CRITERIOS DE INCLUSAO
+rule "Idade"
+salience 5
+    when
+        $p:Paciente(idade < 18);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem menos de 18 anos (" + $p.getIdade() + "anos)!");
+        $p.setAprovado(false);
+        $p.addNota("Tem menos de 18 anos(" + $p.getIdade() + "anos)");
+end
+
+rule "Consentimento"
+salience 5
+    when
+        $p:Paciente(consentimento != true);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " não deu o seu consentimento para participar no estudo!");
+        $p.setAprovado(false);
+        $p.addNota("Não deu o seu consentimento");
+end
+
+rule "OMS"
+salience 5
+    when
+        $p:Paciente(OMS != 0 && OMS != 1);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem um Indicador de Desempenho da OMS diferente de 0 e 1 (" + $p.getOMS() + ")!");
+        $p.setAprovado(false);
+        $p.addNota("Tem um Indicador de Desempenho da OMS diferente de 0 e 1(" + $p.getOMS() + ")");
+end
+
+rule "Siewert"
+salience 5
+    when
+        $p:Paciente(siewert != true);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " não está diagnosticado com Siewert I ou II!");
+        $p.setAprovado(false);
+        $p.addNota("Não está diagnosticado com Siewert I ou II");
+end
+
+rule "Doenca Ressecavel"
+salience 5
+    when
+        $p:Paciente(doenca_ressecavel != true);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " não está diagnosticado com uma doenca ressecavel!");
+        $p.setAprovado(false);
+        $p.addNota("Não está diagnosticado com uma Doença Ressecável");
+end
+
+rule "Borda Superior do Tumor"
+salience 5
+    when
+        $p:Paciente(borda_sup < 3);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem uma borda superior do tumor com menos de 3cm abaixo do esfincter superior do esofago (" + $p.getBorda_sup() + ")!");
+        $p.setAprovado(false);
+        $p.addNota("Tem uma borda superior do tumor com menos de 3cm abaixo do esfincter superior do esofago(" + $p.getBorda_sup() + ")");
+end
+
+//CRITERIOS DE EXCLUSAO
+rule "Gravida"
+salience 5
+    when
+        $p:Paciente(gravida_lactante == true);
+    then
+        System.out.println("[REPROVADO] A paciente " + $p.getNome() + " está gravida ou lactante!");
+        $p.setAprovado(false);
+        $p.addNota("Está gravida ou lactante");
+end
+
+rule "Radioterapia"
+salience 5
+    when
+        $p:Paciente(radioterapia == true);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " teve uma radioterapia torácica prévia!");
+        $p.setAprovado(false);
+        $p.addNota("Teve uma Radioterapia Torácica Prévia");
+end
+
+rule "Infecao Ativa"
+salience 5
+    when
+        $p:Paciente(infecao_ativa == true);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem uma infecao ativa ou outra condição médica que o impeça de receber o tratamento médico planejado!");
+        $p.setAprovado(false);
+        $p.addNota("Tem uma infecao ativa ou outra condição médica que o impeça de receber o tratamento médico planejado");
+end
+
+//CRITERIOS DE EXCLUSAO - SANGUE
+
+rule "Neutrófilos"
+salience 5
+    when
+        $p:Paciente(sangue.getNeutrofilos() < sangue.nlim);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem um sangue com uma contagem de neutrofilos abaixo de 1.5 x 10^9 / L (" + $p.getSangue().getNeutrofilos() + " / L)!");
+        $p.setAprovado(false);
+        $p.addNota("Tem um sangue com uma contagem de neutrofilos abaixo de 1.5 x 10^9 / L (" + $p.getSangue().getNeutrofilos() + " / L)");
+end
+
+rule "Plaquetas"
+salience 5
+    when
+        $p:Paciente(sangue.getPlaquetas() <  sangue.plim);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem um sangue com uma contagem de plaquetas abaixo de 100 x 10^9 / L (" + $p.getSangue().getPlaquetas() + " / L)!");
+        $p.setAprovado(false);
+        $p.addNota("Tem um sangue com uma contagem de plaquetas abaixo de 100 x 10^9 / L (" + $p.getSangue().getPlaquetas() + " / L)");
+end
+
+rule "Bilirrubina"
+salience 5
+    when
+        $p:Paciente(sangue.getBilirrubina() >  sangue.blim);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem um sangue com uma concentracao sérica de bilirrubina total acima de 1.5 * LSN (" + $p.getSangue().getBilirrubina() + " x LSN)!");
+        $p.setAprovado(false);
+        $p.addNota("Tem um sangue com uma concentracao sérica de bilirrubina total acima de 1.5 * LSN (" + $p.getSangue().getBilirrubina() + " x LSN)");
+end
+
+rule "Creatina"
+salience 5
+    when
+        $p:Paciente(sangue.getCreatina() >  sangue.clim);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem um sangue com creatina acima de 120 mcmol / L (" + $p.getSangue().getCreatina() + " mcmol / L)!");
+        $p.setAprovado(false);
+        $p.addNota("Tem um sangue com creatina acima de 120 mcmol / L (" + $p.getSangue().getCreatina() + " mcmol / L)");
+end
+
+rule "FEV1"
+salience 5
+    when
+        $p:Paciente(sangue.getFEV1() < sangue.flim);
+    then
+        System.out.println("[REPROVADO] O paciente " + $p.getNome() + " tem um sangue com FEV1 abaixo de 1.5 L (" + $p.getSangue().getFEV1() + " L)!");
+        $p.setAprovado(false);
+        $p.addNota("Tem um sangue com FEV1 abaixo de 1.5 L (" + $p.getSangue().getFEV1() + " L)");
+end
+
+//TESTES ADICIONAIS
+rule "Broncoscopia"
+salience 5
+    when
+        $p:Paciente(broncoscopia == true, idade >= 18, OMS == 0 || OMS == 1, siewert == true, doenca_ressecavel == true, borda_sup >= 3, consentimento == true, gravida_lactante == false, radioterapia == false, infecao_ativa == false, sangue.getNeutrofilos() >= sangue.nlim, sangue.getPlaquetas() >= sangue.plim, sangue.getBilirrubina() <= sangue.blim, sangue.getCreatina() <= sangue.clim, sangue.getFEV1() >= sangue.flim);
+    then
+        System.out.println("[AVISO] O paciente " + $p.getNome() + " necessita de efetuar uma broncoscopia na fase de rastreio!");
+        $p.addNota("Necessita de efetuar uma broncoscopia na fase de rastreio");
+end
+
+rule "Endoscopia"
+salience 5
+    when
+        $p:Paciente(endoscopia == true, idade >= 18, OMS == 0 || OMS == 1, siewert == true, doenca_ressecavel == true, borda_sup >= 3, consentimento == true, gravida_lactante == false, radioterapia == false, infecao_ativa == false, sangue.getNeutrofilos() >= sangue.nlim, sangue.getPlaquetas() >= sangue.plim, sangue.getBilirrubina() <= sangue.blim, sangue.getCreatina() <= sangue.clim, sangue.getFEV1() >= sangue.flim);
+    then
+        System.out.println("[AVISO] O paciente " + $p.getNome() + " necessita de efetuar uma endoscopia 6 semanas após o inicio do tratamento!");
+		$p.addNota("Necessita de efetuar uma endoscopia 6 semanas após o inicio do tratamento");
+end
+
+rule "Estomago"
+salience 5
+    when
+        $p:Paciente(estomago == true, idade >= 18, OMS == 0 || OMS == 1, siewert == true, doenca_ressecavel == true, borda_sup >= 3, consentimento == true, gravida_lactante == false, radioterapia == false, infecao_ativa == false, sangue.getNeutrofilos() >= sangue.nlim, sangue.getPlaquetas() >= sangue.plim, sangue.getBilirrubina() <= sangue.blim, sangue.getCreatina() <= sangue.clim, sangue.getFEV1() >= sangue.flim);
+    then
+        System.out.println("[AVISO] O paciente " + $p.getNome() + " necessita de efetuar jejum durante 6 horas antes do tratamento!");
+        $p.addNota("Necessita de efetuar jejum durante 6 horas antes do tratamento");
+end
+
+//APROVADO
+
+rule "Aprovado"
+salience 10
+    when
+        $p:Paciente(idade >= 18, OMS == 0 || OMS == 1, siewert == true, doenca_ressecavel == true, borda_sup >= 3, consentimento == true, gravida_lactante == false, radioterapia == false, infecao_ativa == false, sangue.getNeutrofilos() >= sangue.nlim, sangue.getPlaquetas() >= sangue.plim, sangue.getBilirrubina() <= sangue.blim, sangue.getCreatina() <= sangue.clim, sangue.getFEV1() >= sangue.flim);        
+    then
+        System.out.println("[APROVADO] O paciente " + $p.getNome() + " foi aprovado para o estudo sobre cancro do esofago!");
+        $p.setAprovado(true);
+end
+
+//INTERFACE
+rule "Mostra Reprovado"
+	when
+		$p:Paciente(aprovado == false)
+	then
+		//
+		//Aceites.append($p.getNome() + "\n");
+		//for(int i = 0; i < $p.getNotas().size(); i++){
+			//Aceites.append($p.getNotas().get(i) + "\n");
+		//}
+		//Aceites.append("______________________________");*/
+end
+
+rule "Mostra Aceite"
+	when
+		$i:UI()
+		$p:Paciente(aprovado == true)
+	then
+		i.append($p.getNome() + "\n");
+		//for(int i = 0; i < $p.getNotas().size(); i++){
+			//Aceites.append($p.getNotas().get(i) + "\n");
+		//}
+		//Aceites.append("______________________________");*/
+end
+
+
+
+
+
+
+
+
+
+
